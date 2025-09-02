@@ -1,8 +1,7 @@
-// src/config/db.ts
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
-dotenv.config(); // ⚠ Toujours appeler ça ici aussi si tu accèdes à process.env ici directement
+dotenv.config();
 
 const connectDB = async () => {
   try {
