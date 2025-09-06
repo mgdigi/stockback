@@ -1,4 +1,5 @@
 import { Request, Response, RequestHandler } from 'express';
+import fs from 'fs';
 // import jwt from 'jsonwebtoken';
 import { UserModel } from '../../models/users/user.model';
 import { UserPayload } from '../../interfaces/users/user.interface';
@@ -7,14 +8,20 @@ import multer from 'multer';
 import path from 'path';
 import { log } from 'console';
 
+const uploadDir = path.resolve(__dirname, '../uploads/logos');
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, './uploads/logos/'); 
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'logo-' + uniqueSuffix + path.extname(file.originalname));
-    }
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'logo-' + uniqueSuffix + path.extname(file.originalname));
+  }
 });
 
 const fileFilter = (req: any, file: any, cb: any) => {
