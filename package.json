@@ -4,9 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-
-     "start": "ts-node src/server.ts",
-
+    "start": "ts-node src/server.ts",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc"
   },
@@ -16,13 +14,15 @@
   "description": "",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.1",
-    "multer": "^2.0.1"
+    "multer": "^2.0.1",
+    "multer-storage-cloudinary": "^4.0.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

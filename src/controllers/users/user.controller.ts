@@ -1,43 +1,34 @@
 import { Request, Response, RequestHandler } from 'express';
 import fs from 'fs';
-// import jwt from 'jsonwebtoken';
 import { UserModel } from '../../models/users/user.model';
 import { UserPayload } from '../../interfaces/users/user.interface';
 import jwt, { Secret } from 'jsonwebtoken';
-import multer from 'multer';
-import path from 'path';
-import { log } from 'console';
+import multer, { FileFilterCallback } from 'multer';
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from '../../config/cloudinary';
 
-const uploadDir = path.resolve(__dirname, '../uploads/logos');
-
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req: Request, file: Express.Multer.File) => {
+    return {
+      folder: "logos", // dossier Cloudinary
+      format: file.mimetype.split("/")[1] as "jpg" | "png" | "webp",
+      public_id: "logo-" + Date.now(),
+    };
   },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'logo-' + uniqueSuffix + path.extname(file.originalname));
-  }
 });
 
-const fileFilter = (req: any, file: any, cb: any) => {
-    if (file.mimetype.startsWith('image/')) {
-        cb(null, true);
-    } else {
-        cb(new Error('Seuls les fichiers image sont acceptés'), false);
+export const upload = multer({
+  storage,
+  fileFilter: (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Seuls les fichiers image sont acceptés"));
     }
-};
-
-export const upload = multer({ 
-    storage: storage,
-    fileFilter: fileFilter,
-    limits: {
-        fileSize: 5 * 1024 * 1024 
-    }
+    cb(null, true);
+  },
+  limits: {
+    fileSize: 5 * 1024 * 1024, 
+  },
 });
 
 
@@ -67,7 +58,10 @@ export const register: RequestHandler = async (req: Request, res: Response): Pro
             return;
         }
 
-        const logoPath = req.file ? req.file.path : null;
+        let logoUrl = "";
+        if (req.file && req.file.path) {
+        logoUrl = req.file.path; // Multer-Cloudinary stocke l’URL ici
+        }
 
         const newUser = new UserModel({
             nom,
@@ -76,7 +70,7 @@ export const register: RequestHandler = async (req: Request, res: Response): Pro
             password,
             role: role || 'vendeur',
             entreprise,
-            logo: logoPath, 
+            logo: logoUrl, 
             adress,
             telephone
         });

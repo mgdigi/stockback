@@ -15,7 +15,7 @@ import {upload} from '../../controllers/users/user.controller'
 const router = express.Router();
 
 router.post('/register', upload.single('logo'), register);
-router.post('/login',upload.single('logo'), login);
+router.post('/login',  login);
 
 router.get('/profile', verifyToken, getProfile);
 router.put('/change-password', verifyToken, changePassword);
